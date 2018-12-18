@@ -28,7 +28,7 @@ class filter_h5p extends moodle_text_filter {
         global $CFG, $DB, $COURSE;
 
         if (empty($COURSE->id) || $COURSE->id == 0) return $text;
-        if (strpos($text, '{h5p~') === false) return $text;
+        if (strpos($text, '{h5p~') === false && strpos($text, '{h5p~') === false) return $text;
 
         $modinfo = get_fast_modinfo($COURSE);
         $cms = $modinfo->get_cms();
@@ -41,6 +41,7 @@ class filter_h5p extends moodle_text_filter {
             $embed .= '<script src="' . $CFG->wwwroot . '/mod/hvp/library/js/h5p-resizer.js" charset="UTF-8"></script>';
 
             $text = str_replace('{h5p~' . $cm->name . '}', $embed, $text);
+            $text = str_replace('{h5p:' . $cm->name . '}', $embed, $text);
         }
 
         return $text;
