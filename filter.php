@@ -28,7 +28,7 @@ class filter_h5p extends moodle_text_filter {
         global $CFG, $DB, $COURSE;
 
         if (empty($COURSE->id) || $COURSE->id == 0) return $text;
-        if (strpos($text, '{h5p~') === false && strpos($text, '{h5p~') === false) return $text;
+        if (strpos($text, '{h5p~') === false && strpos($text, '{h5p:') === false) return $text;
 
         $modinfo = get_fast_modinfo($COURSE);
         $cms = $modinfo->get_cms();
