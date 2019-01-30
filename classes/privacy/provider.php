@@ -15,17 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * String file for filter_h5p.
- *
  * @package    filter_h5p
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace filter_h5p\privacy;
+
 defined('MOODLE_INTERNAL') || die;
 
-$string['filtername'] = 'H5P Filter';
-$string['pluginname'] = 'H5P Filter';
+class provider implements \core_privacy\local\metadata\null_provider {
 
-$string['privacy:metadata'] = 'This plugin does not store any data at all.';
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}

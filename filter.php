@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This is the filter itself.
+ *
  * @package    filter_h5p
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
  * @author     Robert Schrenk
@@ -23,24 +25,35 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+/**
+ * Filter is defined here.
+ */
 class filter_h5p extends moodle_text_filter {
+    /**
+     * Function filter replaces any h5p-sources.
+     */
     public function filter($text, array $options = array()) {
         global $CFG, $DB, $COURSE;
 
-        if (empty($COURSE->id) || $COURSE->id == 0) return $text;
-        if (strpos($text, '{h5p~') === false && strpos($text, '{h5p:') === false) return $text;
+        if (empty($COURSE->id) || $COURSE->id == 0) {
+            return $text;
+        }
+        if (strpos($text, '{h5p:') === false) {
+            return $text;
+        }
 
         $modinfo = get_fast_modinfo($COURSE);
         $cms = $modinfo->get_cms();
 
-        foreach($cms AS $cm) {
-            if ($cm->modname != 'hvp') continue;
+        foreach ($cms as $cm) {
+            if ($cm->modname != 'hvp') {
+                continue;
+            }
+            $cm->wwwroot = $CFG->wwwroot;
 
-            $link = '<a href="' . $cm->url . '">' . $cm->name . '</a>';
-            $embed = '<iframe src="' . $CFG->wwwroot . '/mod/hvp/embed.php?id=' . $cm->id . '" width="1092" height="277" frameborder="0" allowfullscreen="allowfullscreen">' . $cm->url . '</iframe>';
-            $embed .= '<script src="' . $CFG->wwwroot . '/mod/hvp/library/js/h5p-resizer.js" charset="UTF-8"></script>';
+            $link = $OUTPUT->render_from_template('filter_h5p/link', $cm);
+            $embed = $OUTPUT->render_from_template('filter_h5p/embed', $cm);
 
-            $text = str_replace('{h5p~' . $cm->name . '}', $embed, $text);
             $text = str_replace('{h5p:' . $cm->name . '}', $embed, $text);
         }
 

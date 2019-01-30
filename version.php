@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Version of filter_h5p.
+ *
  * @package    filter_h5p
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
  * @author     Robert Schrenk
@@ -23,8 +25,11 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2018091201;
+$plugin->version  = 2019013000;
 $plugin->requires = 2014051200;  // Requires Moodle 2.7.
 $plugin->component = 'filter_h5p';
-$plugin->release = '0.1 (Build: 2018091201)';
+$plugin->release = '1.0 (Build: 2019013000)';
 $plugin->maturity = MATURITY_STABLE;
+$plugin->dependencies = array(
+    'mod_hvp' => 2017031300
+);
