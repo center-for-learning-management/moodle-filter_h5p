@@ -13,9 +13,31 @@
 
     You should have received a copy of the GNU General Public License
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 }}
-<iframe src="{{wwwroot}}/mod/hvp/embed.php?id={{id}}" width="1092" height="277" frameborder="0" allowfullscreen="allowfullscreen">
+{{!
+    @template filter_h5p/embed
+
+    The purpose of this template is to render an iframe showing the h5p content.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * id
+    * url
+    * wwwroot
+
+    Example context (json):
+    {
+        "id": 1,
+        "url": https://www.mymoodlesite.org/mod/hvp/view.php?id=1,
+        "wwwroot": "http://www.mymoodlesite.org",
+    }
+}}
+<iframe src="{{wwwroot}}/mod/hvp/embed.php?id={{id}}" width="1092" height="277" allowfullscreen="allowfullscreen">
     {{url}}
 </iframe>
 <script src="{{wwwroot}}/mod/hvp/library/js/h5p-resizer.js" charset="UTF-8"></script>

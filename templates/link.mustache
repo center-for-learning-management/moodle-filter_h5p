@@ -13,6 +13,26 @@
 
     You should have received a copy of the GNU General Public License
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template filter_h5p/link
 
+    The purpose of this template is to render a link to a h5p content.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * name
+    * url
+
+    Example context (json):
+    {
+        "name": "My h5p activity",
+        "url": https://www.mymoodlesite.org/mod/hvp/view.php?id=1,
+    }
 }}
 <a href="{{url}}">{{name}}</a>

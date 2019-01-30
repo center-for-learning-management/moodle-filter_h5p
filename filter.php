@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * This is the filter itself.
  *
@@ -22,18 +24,12 @@
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die;
-
-/**
- * Filter is defined here.
- */
 class filter_h5p extends moodle_text_filter {
     /**
      * Function filter replaces any h5p-sources.
      */
     public function filter($text, array $options = array()) {
-        global $CFG, $DB, $COURSE;
+        global $CFG, $DB, $COURSE, $OUTPUT;
 
         if (empty($COURSE->id) || $COURSE->id == 0) {
             return $text;
@@ -49,10 +45,15 @@ class filter_h5p extends moodle_text_filter {
             if ($cm->modname != 'hvp') {
                 continue;
             }
-            $cm->wwwroot = $CFG->wwwroot;
+            $params = (object) array(
+                'id' => $cm->id,
+                'name' => $cm->modname,
+                'url' => $cm->url,
+                'wwwroot' => $CFG->wwwroot,
+            );
 
-            $link = $OUTPUT->render_from_template('filter_h5p/link', $cm);
-            $embed = $OUTPUT->render_from_template('filter_h5p/embed', $cm);
+            //$link = $OUTPUT->render_from_template('filter_h5p/link', $params);
+            $embed = $OUTPUT->render_from_template('filter_h5p/embed', $params);
 
             $text = str_replace('{h5p:' . $cm->name . '}', $embed, $text);
         }

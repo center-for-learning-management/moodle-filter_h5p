@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2019013000;
+$plugin->version  = 2019013001;
 $plugin->requires = 2014051200;  // Requires Moodle 2.7.
 $plugin->component = 'filter_h5p';
 $plugin->release = '1.0 (Build: 2019013000)';
