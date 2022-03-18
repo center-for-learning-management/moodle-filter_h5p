@@ -38,7 +38,8 @@
     }
 }}
 
-<iframe src="{{embedurl}}" name="h5player" width="521" height="354"
-   allowfullscreen="allowfullscreen" class="h5p-player w-100 border-0"
-   style="min-height: 230px;">
-</iframe><script src="{{wwwroot}}/h5p/h5plib/v124/joubel/core/js/h5p-resizer.js"></script>
+<iframe src="{{embedurl}}" name="h5player" frameborder="0" title="{{name}}"
+   allowfullscreen="allowfullscreen" class="h5p-player w-100 border-0">
+   {{embedurl}}
+</iframe>
+<script src="{{wwwroot}}/mod/hvp/library/js/h5p-resizer.js" charset="UTF-8"></script>
