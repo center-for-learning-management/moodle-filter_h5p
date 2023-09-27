@@ -77,9 +77,10 @@ class filter_h5p extends moodle_text_filter {
                     $h5pparams = [
                             'url' => $fileurl,
                             'preventredirect' => true,
-                            'component' => '', //$component,
+                            'component' => 'mod_h5pactivity', //$component,
                         ];
-
+                    
+                    // Not sure if this is needed. It is not part of the url in embed code.
                     $optparams = ['frame', 'export', 'embed', 'copyright'];
                     foreach ($optparams as $optparam) {
                         if (!empty($config->$optparam)) {
