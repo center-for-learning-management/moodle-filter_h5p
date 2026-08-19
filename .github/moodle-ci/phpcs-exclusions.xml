@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="PluginPHPCSExclusions">
+    <!--
+        Plugin-specific PHPCS exceptions.
+
+        This file EXTENDS the standard Moodle ruleset - it does not replace it.
+        Add exceptions below as needed and document WHY each one exists.
+
+        HOW TO USE THIS FILE
+        =====================
+        Because moodle-plugin-ci passes the "standard" option as moodle
+        explicitly on the phpcs command line, a plain phpcs.xml dropped in
+        the plugin root is NOT picked up automatically. This file must be
+        referenced explicitly from the CI workflow's phpcs step.
+
+        See README.md in this same folder for the exact workflow snippet
+        to add.
+
+        WHAT YOU CAN DO HERE
+        =====================
+        1) Disable a sniff completely (project-wide):
+
+            <rule ref="Generic.Files.LineLength">
+                <severity>0</severity>
+            </rule>
+
+        2) Disable a sniff only for specific files/paths:
+
+            <rule ref="Squiz.Arrays.ArrayBracketSpacing">
+                <exclude-pattern>*/classes/legacy/*</exclude-pattern>
+            </rule>
+
+        3) Adjust a sniff's settings instead of disabling it entirely
+           (e.g. allow longer lines instead of turning the check off):
+
+            <rule ref="Generic.Files.LineLength">
+                <properties>
+                    <property name="lineLimit" value="160"/>
+                    <property name="absoluteLineLimit" value="180"/>
+                </properties>
+            </rule>
+
+        4) Exclude whole directories from ALL checks (e.g. vendored/third-party
+           code bundled with the plugin):
+
+            <exclude-pattern>*/thirdparty/*</exclude-pattern>
+            <exclude-pattern>*/vendor/*</exclude-pattern>
+
+        5) Allow both "elseif" and "else if" (Moodle's style guide normally
+           requires "else if" - this disables that specific check so both
+           spellings pass):
+
+            <rule ref="moodle.ControlStructures.ElseIfDeclaration">
+                <severity>0</severity>
+            </rule>
+
+           Note: this sniff has no automatic fixer in PHP_CodeSniffer, so
+           phpcbf will never rewrite "elseif" <-> "else if" either way -
+           disabling it here is the only way to stop it being reported.
+
+        6) Space before the opening curly brace of control structures
+           (if/foreach/while/...), e.g. "if (...) {" vs "if (...){".
+           Two ways to do this - pick ONE, don't enable both:
+
+           6a) Disable ONLY the space-before-brace check, keep every other
+               check this sniff does (space after keyword, space after the
+               closing parenthesis, newline rules, etc.):
+
+            <rule ref="Squiz.ControlStructures.ControlSignature.SpaceBeforeCurlyBrace">
+                <severity>0</severity>
+            </rule>
+
+           6b) Disable the ENTIRE ControlSignature sniff, including all the
+               other checks it does. Broader than 6a - only use this if you
+               want to stop enforcing all of that, not just the brace space:
+
+            <rule ref="Squiz.ControlStructures.ControlSignature">
+                <severity>0</severity>
+            </rule>
+
+           Note: unlike the elseif sniff above, this one DOES have an
+           automatic fixer - "moodle-plugin-ci phpcbf" will happily add the
+           missing space for you. Consider running phpcbf instead of
+           disabling this, unless the team has deliberately decided both
+           styles should be allowed.
+
+        TIP: The exact sniff code for any violation is shown in parentheses
+        at the end of each line in the CI output, e.g.:
+            (Generic.Files.LineLength) or (Squiz.Arrays.ArrayBracketSpacing)
+
+        For one-off exceptions in a single spot, prefer inline suppression
+        in the code itself instead of editing this file:
+            // phpcs:ignore Generic.Files.LineLength
+        or for a block:
+            // phpcs:disable Squiz.Arrays.ArrayBracketSpacing
+            ...
+            // phpcs:enable Squiz.Arrays.ArrayBracketSpacing
+    -->
+
+    <!-- Base ruleset, do not remove. -->
+    <rule ref="moodle"/>
+
+    <!-- ============================================================ -->
+    <!-- Add plugin specific exceptions below this line. -->
+    <!-- ============================================================ -->
+
+    <!--
+        ============================================================
+        .editorconfig alignment
+        ============================================================
+        The rules in this block mirror the plugin's .editorconfig, so the IDE
+        (which formats from .editorconfig) and CI (which checks with PHPCS)
+        cannot disagree about the same piece of code. Without them phpcbf and
+        the IDE keep undoing each other's changes on every reformat.
+
+        Keep this block in sync whenever .editorconfig changes.
+
+        Settings that need NO rule because Moodle already enforces the same
+        thing: charset = utf-8, end_of_line = lf, indent_style = space,
+        indent_size = 4, insert_final_newline = true and
+        trim_trailing_whitespace = true. The [*.js], [*.json], [*.md], ... blocks
+        are irrelevant here, PHPCS only reads .php files.
+    -->
+
+    <!--
+        .editorconfig: max_line_length = 240 (in both [*] and the PHP block).
+        Moodle defaults to 132 (warning) / 180 (error). Since CI runs with
+        the "max-warnings 0" option, even the 132 warning breaks the build,
+        so both limits are raised to the value the IDE wraps at. Lang files
+        are exempt from this sniff anyway.
+    -->
+    <rule ref="moodle.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="240"/>
+            <property name="absoluteLineLimit" value="240"/>
+        </properties>
+    </rule>
+
+    <!--
+        .editorconfig: ij_php_space_before_closure_left_parenthesis = false
+        (and the same for short closures), so the IDE writes "function() {"
+        while PSR-12/Moodle expects "function () {".
+    -->
+    <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        .editorconfig: ij_formatter_enabled = false for these paths - the IDE
+        deliberately leaves them alone (generated or third party code), so
+        PHPCS should not check them either.
+    -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/react-app/*</exclude-pattern>
+    <exclude-pattern>*/react-apps/*</exclude-pattern>
+    <exclude-pattern>*/amd/build/*</exclude-pattern>
+
+    <!--
+        .editorconfig: ij_php_variable_naming_style = mixed, so the IDE does not
+        enforce Moodle's "all lower-case, no underscores" variable names. The
+        plugin uses $some_var style throughout, renaming them would break every
+        caller, so the underscore check is switched off.
+
+        Only the underscore codes are disabled - "VariableNameLowerCase" stays
+        active, so $someVar is still reported for local variables.
+
+        Careful with MemberNameUnderscore: moodle-cs reuses that same code for
+        "member variable must be all lower-case", so disabling it allows
+        $this->someVar as well.
+    -->
+    <rule ref="moodle.NamingConventions.ValidVariableName.VariableNameUnderscore">
+        <severity>0</severity>
+    </rule>
+    <rule ref="moodle.NamingConventions.ValidVariableName.MemberNameUnderscore">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        Moodle wants "else if", the plugin's coding style uses "elseif".
+        Not an .editorconfig conflict (ij_php_else_if_style = as_is leaves both
+        alone), but the sniff has an auto fixer, so the phpcbf step in CI would
+        rewrite every "elseif" and open a PR for it.
+    -->
+    <rule ref="Squiz.ControlStructures.ElseIfDeclaration">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        Moodle wants every inline comment to end in ".", "!" or "?". The plugin
+        uses short notes without closing punctuation, and since CI runs with the
+        "max-warnings 0" option this warning alone breaks the build.
+    -->
+    <rule ref="moodle.Commenting.InlineComment.InvalidEndChar">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        Moodle allows exactly one space after "//". The plugin uses extra spaces
+        to line comments up with the code they belong to, which the IDE keeps as
+        is (ij_php_align_inline_comments = false only stops it from aligning
+        them itself, it never collapses existing spacing).
+    -->
+    <rule ref="moodle.Commenting.InlineComment.SpacingBefore">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        Empty if and else branches are used deliberately in this plugin to
+        document that a case was considered and nothing is to be done. The
+        sniff counts a branch containing only a comment as empty, so the
+        comment alone does not satisfy it.
+        Empty catch and foreach bodies are still reported.
+    -->
+    <rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedIf">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedElse">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedElseif">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        .editorconfig: ij_php_call_parameters_wrap = off, so the IDE keeps
+        several arguments on one line, while PSR-12 wants one argument per line
+        as soon as a call spans multiple lines. The sniff has an auto fixer, so
+        without this the phpcbf step would reflow those calls on every push.
+    -->
+    <rule ref="PSR2.Methods.FunctionCallSignature.MultipleArguments">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        .editorconfig: ij_php_keep_blank_lines_in_code = 2, so the IDE keeps up
+        to two blank lines in a row. The sniff cannot be configured to a count,
+        it only knows "one line", so it is switched off completely.
+    -->
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        "AS" to alias tables in SQL is downgraded from error to warning - the
+        plugin only ever runs on MySQL/MariaDB and PostgreSQL, where it works.
+
+        Note that moodle-cs reuses the same code for two more checks, so those
+        become warnings as well: the /e modifier in regular expressions (removed
+        from PHP 7 anyway) and backticks in strings (already a warning).
+    -->
+    <rule ref="moodle.Strings.ForbiddenStrings.Found">
+        <type>warning</type>
+    </rule>
+
+    <!--
+        False positives on the alternative syntax used inside HTML templates:
+
+            <?php if ($x): ?> ... <?php else: ?> ... <?php endif; ?>
+
+        The sniff expects a space between ")" and the body and after "else",
+        but here they are followed directly by ":". Its auto fixer would turn
+        them into "if ($x) :" and "else :" on every CI run.
+
+        Trade off: both codes also cover the curly brace syntax, so "if ($x){"
+        and "else{" are no longer reported either.
+    -->
+    <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseParenthesis">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        Same alternative syntax, but inline within one line of HTML:
+
+            <div class="a <?php if ($x): ?>b<?php endif; ?>">
+
+        Both sniffs want the body on its own line. Their auto fixers would
+        insert newlines inside the HTML attribute and change the rendered
+        output, so they are switched off.
+
+        Trade off: this also stops "if ($x) { doSomething(); }" from being
+        reported, which the plugin's coding style forbids anyway.
+    -->
+    <rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore">
+        <severity>0</severity>
+    </rule>
+
+    <!--
+        TODO comments do not have to reference an "MDL-1234" issue - that is
+        Moodle core's tracker, this plugin uses GitHub issues. An empty regex
+        is the documented way to switch the check off. To require the GitHub
+        issue number instead, set the value to "#[0-9]+".
+    -->
+    <rule ref="moodle.Commenting.TodoComment">
+        <properties>
+            <property name="commentRequiredRegex" value=""/>
+        </properties>
+    </rule>
+
+    <!--
+        Further .editorconfig settings that conflict with Moodle but are NOT
+        disabled here on purpose:
+
+        ij_php_lower_case_boolean_const / ij_php_lower_case_null_const are
+        false, so the IDE leaves TRUE/FALSE/NULL untouched while Moodle wants
+        them lowercase. Better fixed the other way round: set those two
+        .editorconfig values to true and run phpcbf.
+    -->
+
+</ruleset>

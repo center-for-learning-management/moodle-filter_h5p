@@ -1,0 +1,67 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Psalm
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  psalm:
+    name: Psalm
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          path: plugin
+
+      # Read the plugin's frankenstyle component (e.g. "local_experience")
+      # from version.php so the composer package name doesn't have to be
+      # hardcoded and kept in sync by hand.
+      - name: Extract plugin component
+        id: component
+        run: |
+          component=$(grep -oP "\\\$plugin->component\s*=\s*'\K[^']+" plugin/version.php)
+          if [ -z "$component" ]; then
+            echo "::error::Could not find \$plugin->component in version.php"
+            exit 1
+          fi
+          echo "component=$component" >> "$GITHUB_OUTPUT"
+
+      # Create a minimal composer.json so Psalm can autodiscover the source.
+      # Frankenstyle "type_pluginname" -> composer "type/pluginname"
+      # (only the first underscore is turned into a slash).
+      - name: Prepare Psalm config
+        env:
+          COMPONENT: ${{ steps.component.outputs.component }}
+        run: |
+          cd plugin
+          package_name="${COMPONENT/_//}"
+          cat > composer.json <<EOF
+          {
+              "name": "$package_name",
+              "autoload": {
+                  "classmap": ["."]
+              }
+          }
+          EOF
+
+      - name: Psalm Security Scan
+        uses: docker://ghcr.io/psalm/psalm-security-scan
+        with:
+          working_dir: plugin
+
+      - name: Upload Psalm SARIF results
+        if: ${{ !cancelled() }}
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: plugin/results.sarif
+          category: psalm

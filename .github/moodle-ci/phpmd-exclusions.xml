@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ruleset name="PluginPHPMDExclusions"
+        xmlns="http://pmd.sf.net/ruleset/1.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd">
+
+    <!-- Base moodle-plugin-ci rules -->
+    <rule ref="rulesets/codesize.xml"/>
+    <rule ref="rulesets/unusedcode.xml"/>
+        <!-- exclude some UnusedLocalVariable example
+            <rule ref="rulesets/unusedcode.xml/UnusedLocalVariable">
+                <exclude-pattern>*/pages/tools/admin_tests.php</exclude-pattern>
+            </rule>
+        -->
+    <rule ref="rulesets/naming.xml">
+        <exclude name="ShortVariable"/>
+    </rule>
+    <rule ref="rulesets/design.xml">
+        <!-- e.g. this legacy plugin has some big switch statements we accept
+            <exclude name="CyclomaticComplexity"/>
+         -->
+        <!--  The function header_status() contains an exit expression.
+            <exclude name="ExitExpression"/>
+         -->
+    </rule>
+    <rule ref="rulesets/cleancode.xml/BooleanArgumentFlag"/>
+
+    <!-- Loosen a threshold instead of disabling outright -->
+    <rule ref="rulesets/codesize.xml/ExcessiveClassLength">
+        <properties>
+            <property name="minimum" value="1000"/>
+        </properties>
+    </rule>
+</ruleset>
