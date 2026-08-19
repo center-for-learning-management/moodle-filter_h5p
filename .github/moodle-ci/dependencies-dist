@@ -1,0 +1,10 @@
+# add plugin dependencies for moodle-ci via https://moodlehq.github.io/moodle-plugin-ci/CLI.html#add-plugin
+# file support — one dependency per line, format: SPEC [BRANCH]
+#   SPEC = owner/repo → passed as the positional project arg
+#   SPEC = anything containing ://, ending in .git, or starting git@ → passed via --clone
+#  BRANCH is optional per line; when present, adds --branch BRANCH
+#  -prefixed lines and blank lines are skipped
+#moodlehq/moodle-plugin-something
+#moodlehq/moodle-plugin-other MOODLE_502_STABLE
+#https://github.com/someuser/moodle-plugin-x.git
+#git@github.com:someuser/moodle-plugin-y.git develop

@@ -1,0 +1,2 @@
+<?php
+$CFG->extendedusernamechars = true;
