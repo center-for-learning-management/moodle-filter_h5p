@@ -28,22 +28,23 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class text_filter extends \core_filters\text_filter {
-    public function filter($text, array $options = array()) {
+    public function filter($text, array $options = []) {
         global $CFG, $COURSE, $OUTPUT;
-        if (strpos($text, "{h5p:") === false)
+        if (strpos($text, "{h5p:") === false) {
             return $text;
+        }
         $modinfo = get_fast_modinfo($COURSE);
         $cms = $modinfo->get_cms();
         foreach ($cms as $cm) {
             if ($cm->modname != 'hvp' && $cm->modname != 'h5pactivity') {
                 continue;
             }
-            $params = (object) array(
+            $params = (object) [
                 'id' => $cm->id,
                 'name' => $cm->modname,
                 'url' => $cm->url,
                 'wwwroot' => $CFG->wwwroot,
-            );
+            ];
             switch ($cm->modname) {
                 case 'hvp':
                     $embed = $OUTPUT->render_from_template('filter_h5p/embed-hvp', $params);
@@ -63,14 +64,16 @@ class text_filter extends \core_filters\text_filter {
                     $fs = get_file_storage();
                     $files = $fs->get_area_files($context->id, 'mod_h5pactivity', 'package', 0, 'id', false);
                     $file = reset($files);
-                    $fileurl = \moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(),
+                    $fileurl = \moodle_url::make_pluginfile_url(
+                        $file->get_contextid(), $file->get_component(),
                         $file->get_filearea(), $file->get_itemid(), $file->get_filepath(),
-                        $file->get_filename(), false);
+                        $file->get_filename(), false
+                    );
 
                     $h5pparams = [
                         'url' => $fileurl,
                         'preventredirect' => true,
-                        'component' => '', //$component,
+                        'component' => '', // $component,
                     ];
 
                     $optparams = ['frame', 'export', 'embed', 'copyright'];
@@ -86,7 +89,7 @@ class text_filter extends \core_filters\text_filter {
                     $embed = $OUTPUT->render_from_template('filter_h5p/embed-h5p', $params);
                     break;
             }
-            //$link = $OUTPUT->render_from_template('filter_h5p/link', $params);
+            // $link = $OUTPUT->render_from_template('filter_h5p/link', $params);
             $text = str_replace('{h5p:' . $cm->name . '}', $embed, $text);
         }
         return $text;
