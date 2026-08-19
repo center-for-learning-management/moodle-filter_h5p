@@ -29,7 +29,6 @@ defined('MOODLE_INTERNAL') || die;
  * Null provider for privacy api.
  */
 class provider implements \core_privacy\local\metadata\null_provider {
-
     /**
      * Return the reason why null provider suffices.
      */
